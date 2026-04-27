@@ -6,7 +6,7 @@ The plugin code is extremely simple, and does everything through simple prompts 
 
 ## Installation
 
-To install it, download the plugin from the release page, and then move the zip file `ghidra_12.0.4_PUBLIC_20260427_FastAIRenamerPlugin.zip` to `${GHIDRA_HOME}\Extensions\Ghidra`, then run Ghidra by running `${GHIDRA_HOME}\ghidraRun.bat`. To activate the plugin, in the initial Ghidra screen on the top menu select `File -> Install Extensions`, then in the plugin browser check the checkbox next to `FastAIRenamerPlugin`, then click `Ok`. Ghidra will prompt you to restart itself, so do that right away. 
+To install it, download the plugin from the [release page](https://github.com/markoglasgow/Ghidra_FastAIRenamer_Plugin/releases), and then move the zip file `ghidra_12.0.4_PUBLIC_20260427_FastAIRenamerPlugin.zip` to `${GHIDRA_HOME}\Extensions\Ghidra`, then run Ghidra by running `${GHIDRA_HOME}\ghidraRun.bat`. To activate the plugin, in the initial Ghidra screen on the top menu select `File -> Install Extensions`, then in the plugin browser check the checkbox next to `FastAIRenamerPlugin`, then click `Ok`. Ghidra will prompt you to restart itself, so do that right away. 
 
 To configure the plugin, next time Ghidra starts, on the top menu go to `Tools -> Run Tool -> CodeBrowser`. Ghidra will say "New Extensions detected. Would you like to configure them?". Click yes, then again check the checkbox next to `FastAIRenamerPlugin`, then click Ok. When the CodeBrowser opens, in the top menu click `Window -> Fast AI Renamer`, then click the `Config` button. Here you will be able to configure your AI model. Close the plugin window and the empty CodeBrowser window once done. 
 
