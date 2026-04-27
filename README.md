@@ -59,3 +59,4 @@ All plugin functionality is exposed through a series of buttons. They are as fol
 ## Tutorial
 
 I wrote a tutorial on how to use this plugin here:
+https://github.com/markoglasgow/gemma_crackme_tutorial
