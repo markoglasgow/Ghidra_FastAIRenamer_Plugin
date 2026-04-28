@@ -72,6 +72,7 @@ import ghidra.program.model.symbol.SourceType;
 import ghidra.program.model.symbol.Symbol;
 import ghidra.program.model.util.PropertyMapManager;
 import ghidra.program.model.util.StringPropertyMap;
+import ghidra.framework.preferences.Preferences;
 import ghidra.util.HelpLocation;
 import ghidra.util.Msg;
 import ghidra.util.task.Task;
@@ -104,6 +105,7 @@ public class FastAIRenamerPlugin extends ProgramPlugin {
 	private String configApiKey = "my-key";
 	private String configModelName = "google_gemma-4-E4B-it-Q8_0.gguf";
 	private String configSystemPrompt = "You are a helpful assistant. You will help the user mark up some decompilation output to help with reverse engineering.";
+	private int configHttpTimeoutSec = 300;
 
 	/**
 	 * Plugin constructor.
@@ -126,8 +128,12 @@ public class FastAIRenamerPlugin extends ProgramPlugin {
 	@Override
 	public void init() {
 		super.init();
-
-		// Acquire services if necessary
+		configBaseUrl       = Preferences.getProperty("fastairenamer.configBaseUrl",       configBaseUrl);
+		configApiKey        = Preferences.getProperty("fastairenamer.configApiKey",        configApiKey);
+		configModelName     = Preferences.getProperty("fastairenamer.configModelName",     configModelName);
+		configSystemPrompt  = Preferences.getProperty("fastairenamer.configSystemPrompt",  configSystemPrompt);
+		configHttpTimeoutSec = Integer.parseInt(
+				Preferences.getProperty("fastairenamer.configHttpTimeoutSec", String.valueOf(configHttpTimeoutSec)));
 	}
 
 	// Called by the button in MyProvider
@@ -785,7 +791,7 @@ public class FastAIRenamerPlugin extends ProgramPlugin {
 	}
 
 	private LlamaHelper createLlamaHelper() {
-		return new LlamaHelper(configBaseUrl, configApiKey, configModelName)
+		return new LlamaHelper(configBaseUrl, configApiKey, configModelName, configHttpTimeoutSec)
 				.setSystemPrompt(configSystemPrompt);
 	}
 
@@ -841,6 +847,7 @@ public class FastAIRenamerPlugin extends ProgramPlugin {
 		private final JTextField baseUrlField;
 		private final JTextField apiKeyField;
 		private final JTextField modelNameField;
+		private final JTextField httpTimeoutField;
 		private final JTextArea systemPromptArea;
 		private final FastAIRenamerPlugin plugin;
 
@@ -878,9 +885,14 @@ public class FastAIRenamerPlugin extends ProgramPlugin {
 			modelNameField = new JTextField(plugin.configModelName, 40);
 			formPanel.add(modelNameField, fc);
 
-			lc.gridy = 3;
+			lc.gridy = 3; fc.gridy = 3;
+			formPanel.add(new JLabel("HTTP Timeout (sec):"), lc);
+			httpTimeoutField = new JTextField(String.valueOf(plugin.configHttpTimeoutSec), 10);
+			formPanel.add(httpTimeoutField, fc);
+
+			lc.gridy = 4;
 			formPanel.add(new JLabel("System Prompt:"), lc);
-			fc.gridy = 3;
+			fc.gridy = 4;
 			fc.fill = GridBagConstraints.BOTH;
 			fc.weighty = 1;
 			systemPromptArea = new JTextArea(plugin.configSystemPrompt, 6, 40);
@@ -905,10 +917,21 @@ public class FastAIRenamerPlugin extends ProgramPlugin {
 		}
 
 		private void onSave() {
-			plugin.configBaseUrl = baseUrlField.getText().trim();
-			plugin.configApiKey = apiKeyField.getText().trim();
-			plugin.configModelName = modelNameField.getText().trim();
+			plugin.configBaseUrl      = baseUrlField.getText().trim();
+			plugin.configApiKey       = apiKeyField.getText().trim();
+			plugin.configModelName    = modelNameField.getText().trim();
 			plugin.configSystemPrompt = systemPromptArea.getText();
+			try {
+				int t = Integer.parseInt(httpTimeoutField.getText().trim());
+				if (t > 0) plugin.configHttpTimeoutSec = t;
+			} catch (NumberFormatException ignored) {}
+
+			Preferences.setProperty("fastairenamer.configBaseUrl",       plugin.configBaseUrl);
+			Preferences.setProperty("fastairenamer.configApiKey",        plugin.configApiKey);
+			Preferences.setProperty("fastairenamer.configModelName",     plugin.configModelName);
+			Preferences.setProperty("fastairenamer.configSystemPrompt",  plugin.configSystemPrompt);
+			Preferences.setProperty("fastairenamer.configHttpTimeoutSec", String.valueOf(plugin.configHttpTimeoutSec));
+			Preferences.store();
 			dispose();
 		}
 	}

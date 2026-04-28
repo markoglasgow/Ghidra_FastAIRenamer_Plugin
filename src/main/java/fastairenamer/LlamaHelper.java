@@ -21,14 +21,17 @@ public class LlamaHelper {
     private double temperature = 1.0;
     private int maxTokens = 16384;
 
-    public LlamaHelper(String baseUrl, String apiKey, String model) {
+    public LlamaHelper(String baseUrl, String apiKey, String model, int timeoutSec) {
         this.apiKey = apiKey;
         this.model = model;
         this.endpoint = baseUrl.replaceAll("/+$", "") + "/v1/chat/completions";
+        this.timeoutSec = timeoutSec;
         this.http = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(10))
+                .connectTimeout(Duration.ofSeconds(timeoutSec))
                 .build();
     }
+
+    private final int timeoutSec;
 
     public LlamaHelper setSystemPrompt(String systemPrompt) {
         this.systemPrompt = systemPrompt;
@@ -68,7 +71,7 @@ public class LlamaHelper {
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(endpoint))
-                .timeout(Duration.ofSeconds(120))
+                .timeout(Duration.ofSeconds(timeoutSec))
                 .header("Content-Type", "application/json")
                 .header("Authorization", "Bearer " + apiKey)
                 .POST(HttpRequest.BodyPublishers.ofString(body))
